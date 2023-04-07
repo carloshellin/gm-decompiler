@@ -706,6 +706,7 @@ static void gm_save_files(const char *filename, gm_t *gm)
         }
         free(subimage_filename);
     }
+    fclose(sprites);
 
     free(outfilename);
     free(gm);
