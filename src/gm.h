@@ -1,5 +1,6 @@
 #define GM_HEADER_POSITION 0x1E3660
 #define GM_MAGIC_NUMBER 1234321
+#define TOTAL_EVENTS 11
 
 typedef struct
 {
@@ -129,6 +130,176 @@ typedef struct
 
 typedef struct
 {
+    i32 begin;
+    i32 end;
+} gm_character_range_t;
+
+typedef struct
+{
+    const char *name;
+    const char *font_name;
+    i32 size;
+    i32 bold;
+    i32 italic;
+    gm_character_range_t character_range;
+    gm_image_t image;
+} gm_font_t;
+
+typedef enum
+{
+    ACTION_NORMAL,
+    ACTION_BEGINGROUP,
+    ACTION_ENDGROUP,
+    ACTION_ELSE,
+    ACTION_EXIT,
+    ACTION_REPEAT,
+    ACTION_VARIABLE,
+    ACTION_CODE,
+    ACTION_PLACEHOLDER,
+    ACTION_SEPARATOR,
+    ACTION_LABEL
+} gm_action_kind_t;
+
+typedef enum
+{
+    ACTIONTYPE_NOTHING,
+    ACTIONTYPE_FUNCTION,
+    ACTIONTYPE_CODE
+} gm_action_type_t;
+
+typedef enum
+{
+    ARGUMENT_EXPRESSION,
+    ARGUMENT_STRING,
+    ARGUMENT_BOTH,
+    ARGUMENT_BOOLEAN,
+    ARGUMENT_MENU,
+    ARGUMENT_SPRITE,
+    ARGUMENT_SOUND,
+    ARGUMENT_BACKGROUND,
+    ARGUMENT_PATH,
+    ARGUMENT_SCRIPT,
+    ARGUMENT_OBJECT,
+    ARGUMENT_ROOM,
+    ARGUMENT_FONT,
+    ARGUMENT_COLOR,
+    ARGUMENT_TIMELINE,
+    ARGUMENT_FONTSTRING
+} gm_argument_kind_t;
+
+typedef struct
+{
+    i32 lib_id;
+    i32 id;
+    gm_action_kind_t kind;
+    i32 may_be_relative;
+    i32 question;
+    i32 applies_something;
+    gm_action_type_t type;
+    const char *name;
+    const char *code;
+    i32 arguments_used;
+    gm_argument_kind_t *argument_kinds;
+    i32 applies_object_index;
+    i32 relative;
+    char **arguments;
+    i32 not_flag;
+} gm_action_t;
+
+typedef struct
+{
+    i32 position;
+    gm_action_t *actions;
+} gm_moment_t;
+
+typedef struct
+{
+    const char *name;
+    gm_moment_t *moments;
+} gm_timeline_t;
+
+typedef struct
+{
+    i32 value;
+    i32 action_count;
+    gm_action_t *actions;
+} gm_event_t;
+
+typedef struct
+{
+    const char *name;
+    i32 sprite_index;
+    i32 solid;
+    i32 visible;
+    i32 depth;
+    i32 persistent;
+    i32 parent_object_index;
+    i32 mask_sprite_index;
+    i32 reserved;
+    gm_event_t *events[TOTAL_EVENTS];
+} gm_object_t;
+
+typedef struct
+{
+    i32 visible;
+    i32 foreground_image;
+    i32 background_image_index;
+    i32 x;
+    i32 y;
+    i32 tile_hor;
+    i32 tile_vert;
+    i32 hor_speed;
+    i32 vert_speed;
+    i32 stretch;
+} gm_room_background_t;
+
+typedef struct
+{
+    i32 visible;
+    i32 x;
+    i32 y;
+    i32 width;
+    i32 height;
+    i32 port_x;
+    i32 port_y;
+    i32 port_w;
+    i32 port_h;
+    i32 hbor;
+    i32 vbor;
+    i32 hsp;
+    i32 vsp;
+    i32 object_following;
+} gm_view_t;
+
+typedef struct
+{
+    i32 x;
+    i32 y;
+    i32 object_index;
+    i32 id;
+    const char *creation_code;
+    struct gm_instance_t *next;
+} gm_instance_t;
+
+typedef struct
+{
+    const char *name;
+    const char *caption;
+    i32 width;
+    i32 height;
+    i32 speed;
+    i32 persistent;
+    i32 background_color;
+    i32 draw_background_color;
+    const char *creation_code;
+    gm_room_background_t *backgrounds;
+    i32 enable_views;
+    gm_view_t *views;
+    gm_instance_t *instances;
+} gm_room_t;
+
+typedef struct
+{
     i32 magic_number;
     i32 debug_flag;
     i32 fullscreen;
@@ -169,4 +340,11 @@ typedef struct
     gm_background_t *backgrounds;
     gm_path_t *paths;
     gm_script_t *scripts;
+    gm_font_t *fonts;
+    gm_timeline_t *timelines;
+    gm_object_t *objects;
+    gm_room_t *rooms;
+    i32 id_last_instance_placed;
+    i32 id_last_tile_placed;
+    i32 *executable_rooms;
 } gm_t;

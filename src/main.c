@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
     if (argc > 1)
     {
         const char *filename = argv[1];
-        FILE* fp = fopen(filename, "rb");
+        FILE *fp = fopen(filename, "rb");
         if (!fp)
         {
             perror("File opening failed");
-            exit(EXIT_FAILURE);
+            return EXIT_FAILURE;
         }
         
         fseek(fp, 0L, SEEK_END);
@@ -29,7 +29,8 @@ int main(int argc, char *argv[])
         
         fclose(fp);
         
-        gm_decompiler(buffer);
+        gm_t *gm = gm_decompiler(buffer);
+        gm_save_files(filename, gm);
     }
     else
     {
