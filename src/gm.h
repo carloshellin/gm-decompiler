@@ -13,6 +13,120 @@ typedef struct
     const char *value;
 } gm_constant_t;
 
+typedef enum
+{
+    SOUND_NORMAL,
+    SOUND_BACKGROUND,
+    SOUND_3D,
+    SOUND_MULTIMEDIA
+} gm_sound_kind_t;
+
+typedef enum
+{
+    SOUNDEFFECTS_CHORUS = 1,
+    SOUNDEFFECTS_ECHO = 2,
+    SOUNDEFFECTS_FLANGER = 4,
+    SOUNDEFFECTS_GARGLE = 8,
+    SOUNDEFFECTS_REVERB = 16
+} gm_sound_effects_t;
+
+typedef struct
+{
+    const char *name;
+    gm_sound_kind_t kind;
+    const char *filetype;
+    const char *filename;
+    gm_file_t *file;
+    gm_sound_effects_t effects;
+    f64 volume;
+    f64 pan;
+    i32 preload;
+} gm_sound_t;
+
+typedef enum
+{
+    BOUNDINGBOX_AUTOMIC,
+    BOUNDINGBOX_FULLIMAGE,
+    BOUNDINGBOX_MANUAL
+} gm_bounding_box_kind_t;
+
+typedef struct
+{
+    i32 left;
+    i32 right;
+    i32 bottom;
+    i32 top;
+} gm_bounding_box_t;
+
+typedef struct
+{
+    i32 x;
+    i32 y;
+} gm_origin_t;
+
+typedef struct
+{
+    i32 width;
+    i32 height;
+    u8 bytes_per_pixel;
+    gm_file_t *file;
+} gm_image_t;
+
+typedef struct
+{
+    const char *name;
+    i32 width;
+    i32 height;
+    gm_bounding_box_t bounding_box;
+    i32 transparent;
+    i32 smooth_edges;
+    i32 preload_texture;
+    gm_bounding_box_kind_t bounding_box_kind;
+    i32 precise_collision_checking;
+    gm_origin_t origin;
+    gm_image_t *subimages;
+} gm_sprite_t;
+
+typedef struct
+{
+    const char *name;
+    i32 width;
+    i32 height;
+    i32 transparent;
+    i32 smooth_edges;
+    i32 preload_texture;
+    i32 use_as_tileset;
+    gm_image_t image;
+} gm_background_t;
+
+typedef enum
+{
+    CONNECTION_STRAIGHTLINES,
+    CONNECTION_SMOOTHCURVE
+} gm_path_connection_kind_t;
+
+typedef struct
+{
+    f64 x;
+    f64 y;
+    f64 speed;
+} gm_point_t;
+
+typedef struct
+{
+    const char *name;
+    gm_path_connection_kind_t connection_kind;
+    i32 closed;
+    i32 precision;
+    gm_point_t *points;
+} gm_path_t;
+
+typedef struct
+{
+    const char *name;
+    gm_file_t *file;
+} gm_script_t;
+
 typedef struct
 {
     i32 magic_number;
@@ -50,4 +164,9 @@ typedef struct
     i32 error_abort;
     i32 treat_as_zero;
     gm_constant_t *constants;
+    gm_sound_t *sounds;
+    gm_sprite_t *sprites;
+    gm_background_t *backgrounds;
+    gm_path_t *paths;
+    gm_script_t *scripts;
 } gm_t;
