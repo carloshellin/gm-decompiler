@@ -660,11 +660,15 @@ static void gm_save_files(const char *filename, gm_t *gm)
     SetCurrentDirectory(outfilename);
     CreateDirectoryA("sounds", NULL);
     CreateDirectoryA("sprites", NULL);
+    CreateDirectoryA("backgrounds", NULL);
+    CreateDirectoryA("paths", NULL);
+    CreateDirectoryA("scripts", NULL);
+    CreateDirectoryA("fonts", NULL);
 
     FILE *constants = fopen("constants.txt", "w");
     for (usize i = 0; i < arrlenu(gm->constants); i++)
     {
-        gm_constant_t constant = gm->constants[i];
+        const gm_constant_t constant = gm->constants[i];
         fprintf(constants, "name: %s, value: %s\n",
                 constant.name, constant.value);
     }
@@ -673,7 +677,7 @@ static void gm_save_files(const char *filename, gm_t *gm)
     FILE *sounds = fopen("sounds.txt", "w");
     for (usize i = 0; i < arrlenu(gm->sounds); i++)
     {
-        gm_sound_t sound = gm->sounds[i];
+        const gm_sound_t sound = gm->sounds[i];
         fprintf(sounds, "name: %s, kind: %d, filetype: %s, filename: %s, effects: %d, volume: %f, pan: %f, preload: %d\n",
                 sound.name, sound.kind, sound.filetype, sound.filename,
                 sound.effects, sound.volume, sound.pan, sound.preload);
@@ -691,7 +695,7 @@ static void gm_save_files(const char *filename, gm_t *gm)
     FILE *sprites = fopen("sprites.txt", "w");
     for (usize i = 0; i < arrlenu(gm->sprites); i++)
     {
-        gm_sprite_t sprite = gm->sprites[i];
+        const gm_sprite_t sprite = gm->sprites[i];
         fprintf(sprites, "name: %s, width: %d, height: %d, transparent: %d, smooth_edges: %d, preload_texture: %d, bounding_box_kind: %d, origin_x: %d, origin_y: %d\n",
                 sprite.name, sprite.width, sprite.height, sprite.transparent,
                 sprite.smooth_edges, sprite.preload_texture, 
@@ -700,13 +704,77 @@ static void gm_save_files(const char *filename, gm_t *gm)
         char *subimage_filename = malloc(strlen("sprites") + strlen(sprite.name) + 10);
         for (usize j = 0; j < arrlenu(sprite.subimages); j++)
         {
-            gm_image_t subimage = sprite.subimages[j];
+            const gm_image_t subimage = sprite.subimages[j];
             sprintf(subimage_filename, "sprites/%s_%zd.tga", sprite.name, j);
             stbi_write_tga(subimage_filename, subimage.width, subimage.height, subimage.bytes_per_pixel, subimage.file->data);
         }
         free(subimage_filename);
     }
     fclose(sprites);
+
+    FILE *backgrounds = fopen("backgrounds.txt", "w");
+    for (usize i = 0; i < arrlenu(gm->backgrounds); i++)
+    {
+        const gm_background_t background = gm->backgrounds[i];
+        fprintf(backgrounds, "name: %s, width: %d, height: %d, transparent: %d, smooth_edges: %d, preload_texture: %d, use_as_tileset: %d\n",
+                background.name, background.width, background.height, background.transparent,
+                background.smooth_edges, background.preload_texture, background.use_as_tileset);
+
+        char *background_filename = malloc(strlen("backgrounds") + strlen(background.name) + 10);
+        sprintf(background_filename, "backgrounds/%s.tga", background.name);
+        const gm_image_t image = background.image;
+        stbi_write_tga(background_filename, image.width, image.height, image.bytes_per_pixel, image.file->data);
+        free(background_filename);
+    }
+    fclose(backgrounds);
+
+    FILE *paths = fopen("paths.txt", "w");
+    for (usize i = 0; i < arrlenu(gm->paths); i++)
+    {
+        const gm_path_t path = gm->paths[i];
+        fprintf(paths, "name: %s, connection_kind: %d, closed: %d, precision: %d\n",
+                path.name, path.connection_kind, path.closed, path.precision);
+
+        char *path_filename = malloc(strlen("paths") + strlen(path.name) + 10);
+        sprintf(path_filename, "paths/%s.txt", path.name);
+        FILE *path_file = fopen(path_filename, "w");
+        for (usize j = 0; j < arrlenu(path.points); j++)
+        {
+            const gm_point_t point = path.points[j];
+
+            fprintf(path_file, "x: %f, y: %f, speed: %f\n", point.x, point.y, point.speed);
+        }
+        fclose(path_file);
+        free(path_filename);
+    }
+    fclose(paths);
+
+    for (usize i = 0; i < arrlenu(gm->scripts); i++)
+    {
+        const gm_script_t script = gm->scripts[i];
+        char *script_filename = malloc(strlen("scripts") + strlen(script.name) + 10);
+        sprintf(script_filename, "scripts/%s.txt", script.name);
+        FILE *script_file = fopen(script_filename, "w");
+        fwrite(script.file->data, script.file->size, 1, script_file);
+        fclose(script_file);
+        free(script_filename);
+    }
+
+    FILE *fonts = fopen("fonts.txt", "w");
+    for (usize i = 0; i < arrlenu(gm->fonts); i++)
+    {
+        const gm_font_t font = gm->fonts[i];
+        fprintf(fonts, "name: %s, size: %d, bold: %d, italic: %d, begin: %d, end: %d\n",
+                font.name, font.size, font.bold, font.italic, font.character_range.begin, font.character_range.end);
+
+        char *font_filename = malloc(strlen("fonts") + strlen(font.font_name) + 10);
+        sprintf(font_filename, "fonts/%s.tga", font.name);
+        const gm_image_t image = font.image;
+        stbi_write_tga(font_filename, image.width, image.height, image.bytes_per_pixel, image.file->data);
+        free(font_filename);
+    }
+    fclose(fonts);
+
 
     free(outfilename);
     free(gm);

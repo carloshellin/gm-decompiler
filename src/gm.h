@@ -1,6 +1,6 @@
 #define GM_HEADER_POSITION 0x1E3660
 #define GM_MAGIC_NUMBER 1234321
-#define TOTAL_EVENTS 11
+#define GM_TOTAL_EVENTS 11
 
 typedef struct
 {
@@ -236,7 +236,7 @@ typedef struct
     i32 parent_object_index;
     i32 mask_sprite_index;
     i32 reserved;
-    gm_event_t *events[TOTAL_EVENTS];
+    gm_event_t *events[GM_TOTAL_EVENTS];
 } gm_object_t;
 
 typedef struct
